@@ -31,3 +31,4 @@ This an application to prune files.
 ### HISTORY ###
 
 * 20220721 - Initial repository.
+* 20220722 - Changed to list of objects.

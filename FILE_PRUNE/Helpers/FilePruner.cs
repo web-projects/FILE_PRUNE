@@ -15,7 +15,7 @@ namespace FILE_PRUNE.Helpers
             "Flyweight Worker"
         };
 
-        public static bool FilePrune(SettingsConfig settingsConfig)
+        public static bool FilePrune(FileGroup fileGroup)
         {
             bool result = false;
 
@@ -29,43 +29,45 @@ namespace FILE_PRUNE.Helpers
                     Directory.CreateDirectory(targetDir);
                 }
 
-                string fileInPath = Path.Combine(targetDir, settingsConfig.Input);
-
-                if (File.Exists(fileInPath))
+                foreach (SettingsConfig settingsConfig in fileGroup.SettingsConfiguration)
                 {
-                    List<string> appsToAdd = GetApplicationsToAdd(settingsConfig.AppsToAdd);
+                    string fileInPath = Path.Combine(targetDir, settingsConfig.Input);
 
-                    string[] logFile = File.ReadAllLines(fileInPath);
-                    List<string> logList = new List<string>(logFile);
-
-                    // target file
-                    string fileOutPath = Path.Combine(targetDir, settingsConfig.Output);
-
-                    // Prune out unwanted lines
-                    using (StreamWriter wr = new StreamWriter(fileOutPath, false))
+                    if (File.Exists(fileInPath))
                     {
-                        wr.AutoFlush = true;
-                        int linesProcessed = 0;
-                        int linesAccepted = 0;
-                        foreach (string line in logFile)
-                        {
-                            if ((appsToAdd.Any(x => line.Contains(x, StringComparison.OrdinalIgnoreCase)) ||
-                                line.Contains(settingsConfig.GUID, StringComparison.OrdinalIgnoreCase)) &&
-                                !NoiseLines.Any(x => line.Contains(x, StringComparison.OrdinalIgnoreCase)))
-                            {
-                                wr.WriteLine(line);
-                                linesAccepted ++;
-                            }
-                            linesProcessed++;
-                        }
-                        Console.WriteLine($"LINES PROCESSED={linesProcessed} - ACCEPTED={linesAccepted}");
-                    }
+                        List<string> appsToAdd = GetApplicationsToAdd(settingsConfig.AppsToAdd);
 
-                    result = true;
-                }
-                else
-                {
-                    Console.WriteLine($"FILE [{fileInPath}] - not found!");
+                        string[] logFile = File.ReadAllLines(fileInPath);
+                        List<string> logList = new List<string>(logFile);
+
+                        // target file
+                        string fileOutPath = Path.Combine(targetDir, settingsConfig.Output);
+
+                        // Prune out unwanted lines
+                        using (StreamWriter wr = new StreamWriter(fileOutPath, false))
+                        {
+                            wr.AutoFlush = true;
+                            int linesProcessed = 0;
+                            int linesAccepted = 0;
+                            foreach (string line in logFile)
+                            {
+                                if ((appsToAdd.Any(x => line.Contains(x, StringComparison.OrdinalIgnoreCase)) ||
+                                    line.Contains(settingsConfig.GUID, StringComparison.OrdinalIgnoreCase)) &&
+                                    !NoiseLines.Any(x => line.Contains(x, StringComparison.OrdinalIgnoreCase)))
+                                {
+                                    wr.WriteLine(line);
+                                    linesAccepted++;
+                                }
+                                linesProcessed++;
+                            }
+                            Console.WriteLine($"LINES PROCESSED={linesProcessed} - ACCEPTED={linesAccepted}");
+                        }
+                        result = true;
+                    }
+                    else
+                    {
+                        Console.WriteLine($"FILE [{fileInPath}] - not found!");
+                    }
                 }
             }
             catch (Exception ex)
@@ -79,7 +81,7 @@ namespace FILE_PRUNE.Helpers
         {
             List<string> apps = new List<string>();
 
-            foreach(string item in applications)
+            foreach (string item in applications)
             {
                 if (Enum.TryParse<SupportedApplications>(item, true, out SupportedApplications value))
                 {

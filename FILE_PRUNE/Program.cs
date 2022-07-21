@@ -20,8 +20,8 @@ namespace FILE_SORT
 
             IConfiguration configuration = ConfigurationLoad();
 
-            SettingsConfig settingsConfig = LoadFileToSort(configuration);
-            FilePruner.FilePrune(settingsConfig);
+            FileGroup fileGroup = GetConfigurationSettings(configuration);
+            FilePruner.FilePrune(fileGroup);
         }
 
         static IConfiguration ConfigurationLoad()
@@ -35,9 +35,9 @@ namespace FILE_SORT
             return configuration;
         }
 
-        static SettingsConfig LoadFileToSort(IConfiguration configuration)
+        static FileGroup GetConfigurationSettings(IConfiguration configuration)
         {
-            return configuration.GetSection(FileGroupKey).GetByEnv<SettingsConfig>();
+            return configuration.GetSection(FileGroupKey).GetByEnv<FileGroup>();
         }
     }
 }

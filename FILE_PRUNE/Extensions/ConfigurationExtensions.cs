@@ -36,7 +36,7 @@ namespace FILE_PRUNE.Extensions
                 {
                     PropertyBinderTypeResolver.Bind(binderAttribute.EnvironmentConfigKey, property, configurationObject);
                 }
-                else if (property.PropertyType.IsClass && 
+                else if (property.PropertyType.IsClass &&
                     !property.PropertyType.Namespace.StartsWith("System"))
                 {
                     RecursivePropertyBinding<object>(property.GetValue(configurationObject));
